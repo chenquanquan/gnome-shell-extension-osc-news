@@ -5,21 +5,35 @@ const Lang = imports.lang;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Soup = imports.gi.Soup;
+const _httpSession = new Soup.SessionAsync();
 
 let client_id = "q93z5JTP7uDt3h6ca3k8";
 let client_secret = "XcSSY7gOwOCN2ZZBDdRje5u0BI8KSzzt";
+let redirect_uri = "https://extensions.gnome.org";
+
+let oauth2_uri = "https://www.oschina.net/action/oauth2/authorize";
 
 const OscApi = new Lang.Class({
     Name: 'OscNew.OscApi',
 
     _init: function() {
-        this.initHttp();
+        //this.initHttp();
     },
 
     initHttp: function() {
         this.authUri = new Soup.URI('https://www.oschina.net/action/oauth2/authorize');
 
-    }
+    },
+
+    getOauthCode: function() {
+        var request = Soup.Message.new('GET', oauth2_uri + "?response_type=code&client_id=" + client_id + "&redirect_uri=" + redirect_uri);
+        _httpSession.queue_message(request, function(_httpSession, message) {
+            if (message.status_code !== 200) {
+                return;
+            }
+            var weatherJSON = request.response_body.data;
+        });
+    },
 });
 
 const TweetItem = new Lang.Class({
@@ -49,7 +63,6 @@ const TweetList = new Lang.Class({
             y_fill: false,
             y_align: St.Align.START,
             overlay_scrollbars: true,
-            style_class: 'vfade'
         });
         this.innerMenu = new PopupMenu.PopupMenuSection();
         scrollView.add_actor(this.innerMenu.actor);
