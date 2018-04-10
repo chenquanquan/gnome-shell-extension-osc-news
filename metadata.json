@@ -1,0 +1,10 @@
+{
+	"description": "Opensource china news client extension for gnome-shell", 
+	"name": "osc-news", 
+	"shell-version": [
+		3.22,
+		3.24
+	], 
+	"url": "https://gitee.com/mt6276m/gnome-shell-extension-osc-news",
+	"uuid": "osc-news@mt6276m.org"
+}
