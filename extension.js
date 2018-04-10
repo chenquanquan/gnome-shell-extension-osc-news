@@ -6,6 +6,9 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Soup = imports.gi.Soup;
 
+let client_id = "q93z5JTP7uDt3h6ca3k8";
+let client_secret = "XcSSY7gOwOCN2ZZBDdRje5u0BI8KSzzt";
+
 const OscApi = new Lang.Class({
     Name: 'OscNew.OscApi',
 
@@ -14,7 +17,8 @@ const OscApi = new Lang.Class({
     },
 
     initHttp: function() {
-        //this.authUri = new Soup.URI('https://www.oschina.net/action/openapi');
+        this.authUri = new Soup.URI('https://www.oschina.net/action/oauth2/authorize');
+
     }
 });
 
@@ -74,7 +78,7 @@ const OscNew = new Lang.Class({
 
     _createContainer: function() {
         let hbox = new St.BoxLayout({style_class: 'panel-status-menu-box' });
-        let icon = new St.Icon({icon_name: 'goa-panel-symbolic', style_class: 'system-status-icon'});
+        let icon = new St.Icon({style_class: 'system-status-icon osc-background-symbolic'});
         hbox.add_child(icon);
 
         this.actor.add_actor(hbox);
