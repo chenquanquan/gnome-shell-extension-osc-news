@@ -7,6 +7,7 @@ let _httpSession;
 let client_id = "q93z5JTP7uDt3h6ca3k8";
 let client_secret = "XcSSY7gOwOCN2ZZBDdRje5u0BI8KSzzt";
 let redirect_uri = "https://extensions.gnome.org";
+let access_token = "457bb1e6-c6df-43eb-98d8-1bfb54491c03";
 
 let oauth2_uri = "https://www.oschina.net/action/oauth2/authorize";
 
@@ -55,7 +56,7 @@ const OscApi = new Lang.Class({
 
     sendTweet: function(id, message, func) {
         let params = {
-            access_token: "457bb1e6-c6df-43eb-98d8-1bfb54491c03",
+            access_token: access_token,
             msg: message
         };
         this.sendMessage(id, tweet_pub_uri, params, func);
@@ -63,7 +64,7 @@ const OscApi = new Lang.Class({
 
     getMessageDebug: function(id, func) {
         let params = {
-            access_token: "457bb1e6-c6df-43eb-98d8-1bfb54491c03",
+            access_token: access_token,
             pagesize: "2",
             page: "1",
             datatype: "json"

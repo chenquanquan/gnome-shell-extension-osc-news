@@ -2,6 +2,7 @@
 const St = imports.gi.St;
 const Main = imports.ui.main;
 const Lang = imports.lang;
+const Tweener = imports.ui.tweener;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Ellipsize = imports.gi.Pango.EllipsizeMode;
@@ -16,6 +17,7 @@ const OscNew = new Lang.Class({
     Extends: PanelMenu.Button,
 
     _init : function() {
+        this.text = null;
         this.parent(0.0, _("OscNew"));
         this.api = new OscApi.OscApi();
         this._createContainer();
@@ -53,6 +55,7 @@ const OscNew = new Lang.Class({
                             let item = new OscWidget.TweetItem(msg[i][j]);
                             this.list.addMenuItem(item);
                         }
+                        this.showNotify("End");
                     }
                 }
             }
@@ -62,6 +65,33 @@ const OscNew = new Lang.Class({
     tweetEntry: function() {
         /* Debug to send tweet */
         //this.api.sendTweet(1, this.pubSect.entry.get_text());
+
+        //this.list.removeAll();
+    },
+
+    hideNotify: function() {
+        Main.uiGroup.remove_actor(this.text);
+        this.text = null;
+    },
+
+    showNotify: function(message) {
+        if (!this.text) {
+            this.text = new St.Label({ text: message});
+            Main.uiGroup.add_actor(this.text);
+        }
+
+        this.text.opacity = 255;
+
+        let monitor = Main.layoutManager.primaryMonitor;
+
+        this.text.set_position(monitor.x + Math.floor(monitor.width / 2 - this.text.width / 2),
+                          monitor.y + Math.floor(monitor.height / 2 - this.text.height / 2));
+
+        Tweener.addTween(this.text,
+                         { opacity: 0,
+                           time: 2,
+                           transition: 'easeOutQuad',
+                           onComplete: this.hideNotify });
     },
 
     start: function() {
