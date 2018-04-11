@@ -4,79 +4,12 @@ const Main = imports.ui.main;
 const Lang = imports.lang;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-const Soup = imports.gi.Soup;
-const _httpSession = new Soup.SessionAsync();
+const Ellipsize = imports.gi.Pango.EllipsizeMode;
 
-let client_id = "q93z5JTP7uDt3h6ca3k8";
-let client_secret = "XcSSY7gOwOCN2ZZBDdRje5u0BI8KSzzt";
-let redirect_uri = "https://extensions.gnome.org";
-
-let oauth2_uri = "https://www.oschina.net/action/oauth2/authorize";
-
-const OscApi = new Lang.Class({
-    Name: 'OscNew.OscApi',
-
-    _init: function() {
-        //this.initHttp();
-    },
-
-    initHttp: function() {
-        this.authUri = new Soup.URI('https://www.oschina.net/action/oauth2/authorize');
-
-    },
-
-    getOauthCode: function() {
-        var request = Soup.Message.new('GET', oauth2_uri + "?response_type=code&client_id=" + client_id + "&redirect_uri=" + redirect_uri);
-        _httpSession.queue_message(request, function(_httpSession, message) {
-            if (message.status_code !== 200) {
-                return;
-            }
-            var weatherJSON = request.response_body.data;
-        });
-    },
-});
-
-const TweetItem = new Lang.Class({
-    Name: 'OscNew.TweetItem',
-    Extends: PopupMenu.PopupBaseMenuItem,
-
-    _init: function(text) {
-        this.parent(0.0, text);
-
-        this.label = new St.Label({text: text});
-        this.actor.add_child(this.label);
-    },
-
-    destroy: function() {
-        this.parent();
-    }
-});
-
-const TweetList = new Lang.Class({
-    Name: 'OscNew.TweetList',
-    Extends: PopupMenu.PopupMenuSection,
-
-    _init: function() {
-        this.parent();
-        let scrollView = new St.ScrollView({
-            x_fill: true,
-            y_fill: false,
-            y_align: St.Align.START,
-            overlay_scrollbars: true,
-        });
-        this.innerMenu = new PopupMenu.PopupMenuSection();
-        scrollView.add_actor(this.innerMenu.actor);
-        this.actor.add_actor(scrollView);
-    },
-
-    addMenuItem: function(item) {
-        this.innerMenu.addMenuItem(item);
-    },
-
-    removeAll: function() {
-        this.innerMenu.removeAll();
-    }
-});
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const OscApi = Me.imports.oscsoup;
+const OscWidget = Me.imports.oscwidget;
 
 const OscNew = new Lang.Class({
     Name: 'OscNew',
@@ -84,9 +17,8 @@ const OscNew = new Lang.Class({
 
     _init : function() {
         this.parent(0.0, _("OscNew"));
+        this.api = new OscApi.OscApi();
         this._createContainer();
-
-        this.api = new OscApi();
     },
 
     _createContainer: function() {
@@ -97,8 +29,39 @@ const OscNew = new Lang.Class({
         this.actor.add_actor(hbox);
         this.actor.add_style_class_name('panel-status-button');
 
-        this.list = new TweetList();
+        this.list = new OscWidget.TweetList();
         this.menu.addMenuItem(this.list);
+
+        this.separator = new PopupMenu.PopupSeparatorMenuItem();
+        this.menu.addMenuItem(this.separator);
+
+        this.pubSect = new OscWidget.TweetPubSect();
+        this.menu.addMenuItem(this.pubSect);
+        this.pubSect.entry.connect('enter-event', Lang.bind(this, this.tweetEntry));
+
+        /* Debug for tweet */
+        this.api.getMessageDebug(0, Lang.bind(this, function() {
+            if (!arguments[0]) {
+                let item = new OscWidget.TweetItem("No data");
+                this.list.addMenuItem(item);
+            } else {
+                let msg = arguments[0];
+
+                for (var i in msg) {
+                    if (i == "tweetlist") {
+                        for (var j in msg[i]) {
+                            let item = new OscWidget.TweetItem(msg[i][j]);
+                            this.list.addMenuItem(item);
+                        }
+                    }
+                }
+            }
+        }));
+    },
+
+    tweetEntry: function() {
+        /* Debug to send tweet */
+        //this.api.sendTweet(1, this.pubSect.entry.get_text());
     },
 
     start: function() {
