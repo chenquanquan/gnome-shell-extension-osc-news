@@ -3,21 +3,28 @@ const St = imports.gi.St;
 const Main = imports.ui.main;
 const Lang = imports.lang;
 const Tweener = imports.ui.tweener;
+const ModalDialog = imports.ui.modalDialog;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Ellipsize = imports.gi.Pango.EllipsizeMode;
+const Gdk = imports.gi.Gdk;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const OscApi = Me.imports.oscsoup;
 const OscWidget = Me.imports.oscwidget;
 
+const QueryDialog = new Lang.Class({
+    Name: 'OscNew.QueryDialog',
+    Extends: ModalDialog.ModalDialog,
+});
+
 const OscNew = new Lang.Class({
     Name: 'OscNew',
     Extends: PanelMenu.Button,
 
     _init : function() {
-        this.text = null;
+        this.notify = null;
         this.parent(0.0, _("OscNew"));
         this.api = new OscApi.OscApi();
         this._createContainer();
@@ -39,59 +46,65 @@ const OscNew = new Lang.Class({
 
         this.pubSect = new OscWidget.TweetPubSect();
         this.menu.addMenuItem(this.pubSect);
-        this.pubSect.entry.connect('enter-event', Lang.bind(this, this.tweetEntry));
 
-        /* Debug for tweet */
-        this.api.getMessageDebug(0, Lang.bind(this, function() {
-            if (!arguments[0]) {
-                let item = new OscWidget.TweetItem("No data");
-                this.list.addMenuItem(item);
-            } else {
-                let msg = arguments[0];
+        this.pubSect.entry.clutter_text.connect('key-press-event', Lang.bind(this, function(obj, event) {
+            let symbol = event.get_key_symbol();
+            let keyname = Gdk.keyval_name(symbol);
 
-                for (var i in msg) {
-                    if (i == "tweetlist") {
-                        for (var j in msg[i]) {
-                            let item = new OscWidget.TweetItem(msg[i][j]);
-                            this.list.addMenuItem(item);
-                        }
-                        this.showNotify("End");
-                    }
-                }
+            if (keyname === "Return") {
+                //this.showNotify(obj.get_text());
+                //this.api.sendTweet(1, this.pubSect.entry.get_text());
             }
         }));
-    },
 
-    tweetEntry: function() {
-        /* Debug to send tweet */
-        //this.api.sendTweet(1, this.pubSect.entry.get_text());
+        /* Debug for tweet */
+        // this.api.getMessageDebug(0, Lang.bind(this, function() {
+        //     if (!arguments[0]) {
+        //         let item = new OscWidget.TweetItem("No data");
+        //         this.list.addMenuItem(item);
+        //     } else {
+        //         let msg = arguments[0];
 
-        //this.list.removeAll();
+        //         for (var i in msg) {
+        //             if (i == "tweetlist") {
+        //                 for (var j in msg[i]) {
+        //                     let item = new OscWidget.TweetItem(msg[i][j]);
+        //                     this.list.addMenuItem(item);
+        //                 }
+        //                 this.showNotify("End");
+        //             }
+        //         }
+        //     }
+        // }));
     },
 
     hideNotify: function() {
-        Main.uiGroup.remove_actor(this.text);
-        this.text = null;
     },
 
     showNotify: function(message) {
-        if (!this.text) {
-            this.text = new St.Label({ text: message});
-            Main.uiGroup.add_actor(this.text);
+        if (!this.notify) {
+            this.notify = new St.Label({
+                style_class: 'osc-notify-label',
+                text: message});
+            Main.uiGroup.add_actor(this.notify);
+        } else {
+            this.notify.set_text(message);
         }
 
-        this.text.opacity = 255;
-
+        this.notify.opacity = 255;
         let monitor = Main.layoutManager.primaryMonitor;
+        this.notify.set_position(monitor.x + Math.floor(monitor.width / 2 - this.notify.width / 2),
+                          monitor.y + Math.floor(monitor.height / 2 - this.notify.height / 2));
 
-        this.text.set_position(monitor.x + Math.floor(monitor.width / 2 - this.text.width / 2),
-                          monitor.y + Math.floor(monitor.height / 2 - this.text.height / 2));
-
-        Tweener.addTween(this.text,
+        Tweener.addTween(this.notify,
                          { opacity: 0,
                            time: 2,
                            transition: 'easeOutQuad',
-                           onComplete: this.hideNotify });
+                           onComplete: Lang.bind(this, function() {
+                               Main.uiGroup.remove_actor(this.notify);
+                               this.notify = null;
+                           }),
+                         });
     },
 
     start: function() {

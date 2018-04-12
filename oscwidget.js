@@ -84,9 +84,9 @@ const TweetPubSect = new Lang.Class({
         this.parent();
         this.entry = new St.Entry({
             name: 'tweetEntry',
-            style_class:'search-entry',
+            hint_text: _('tweet...'),
+            style_class:'run-dialog-entry',
             track_hover: true,
-            reactive: true,
             can_focus: true
         });
         this.actor.add_child(this.entry);
