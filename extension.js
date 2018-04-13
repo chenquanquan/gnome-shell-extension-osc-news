@@ -4,6 +4,7 @@ const Main = imports.ui.main;
 const Lang = imports.lang;
 const Tweener = imports.ui.tweener;
 const ModalDialog = imports.ui.modalDialog;
+const Clutter = imports.gi.Clutter;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Ellipsize = imports.gi.Pango.EllipsizeMode;
@@ -17,6 +18,33 @@ const OscWidget = Me.imports.oscwidget;
 const QueryDialog = new Lang.Class({
     Name: 'OscNew.QueryDialog',
     Extends: ModalDialog.ModalDialog,
+
+    _init: function() {
+        this.parent({ styleClass: 'run-dialog',
+                      destroyOnClose: false });
+        this.label = new St.Label({
+            style_class: 'run-dialog-label',
+            text: _('Forget message?')
+        });
+        this.contentLayout.add(this.label, { x_fill: false,
+                                        x_align: St.Align.START,
+                                        y_align: St.Align.START });
+        this.setButtons([{ action: this.close.bind(this),
+                           label: _('Close'),
+                           key: Clutter.Escape },
+                         { action: this.close.bind(this),
+                           label: _('Ok'),
+                           key: Clutter.Escape }]);
+    },
+
+    setMessage: function(message) {
+        this.label.set_text(message);
+    },
+
+    open: function(func) {
+        this.parent();
+    }
+
 });
 
 const OscNew = new Lang.Class({
@@ -26,6 +54,7 @@ const OscNew = new Lang.Class({
     _init : function() {
         this.notify = null;
         this.parent(0.0, _("OscNew"));
+        this.dialog = new QueryDialog("dialog message");
         this.api = new OscApi.OscApi();
         this._createContainer();
     },
@@ -54,6 +83,9 @@ const OscNew = new Lang.Class({
             if (keyname === "Return") {
                 //this.showNotify(obj.get_text());
                 //this.api.sendTweet(1, this.pubSect.entry.get_text());
+                this.dialog.setMessage("Send:" + obj.get_text());
+                let tmp = this.dialog.open();
+                this.showNotify(tmp);
             }
         }));
 
