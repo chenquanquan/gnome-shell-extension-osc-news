@@ -30,21 +30,25 @@ const QueryDialog = new Lang.Class({
                                         x_align: St.Align.START,
                                         y_align: St.Align.START });
         this.setButtons([{ action: this.close.bind(this),
-                           label: _('Close'),
+                           label: _('Cancel'),
                            key: Clutter.Escape },
-                         { action: this.close.bind(this),
+                         { action: Lang.bind(this, function() {
+                             if (this.ok_callback !== undefined)
+                                 this.ok_callback();
+                             this.close();
+                         }),
                            label: _('Ok'),
-                           key: Clutter.Escape }]);
+                         }]);
     },
 
     setMessage: function(message) {
         this.label.set_text(message);
     },
 
-    open: function(func) {
+    open: function(ok_func) {
+        this.ok_callback = ok_func;
         this.parent();
     }
-
 });
 
 const OscNew = new Lang.Class({
@@ -81,33 +85,34 @@ const OscNew = new Lang.Class({
             let keyname = Gdk.keyval_name(symbol);
 
             if (keyname === "Return") {
-                //this.showNotify(obj.get_text());
-                //this.api.sendTweet(1, this.pubSect.entry.get_text());
-                this.dialog.setMessage("Send:" + obj.get_text());
-                let tmp = this.dialog.open();
-                this.showNotify(tmp);
+                this.new_tweet_text = obj.get_text();
+                this.dialog.setMessage("Send:" + this.new_tweet_text);
+                this.dialog.open(Lang.bind(this, function() {
+                    this.showNotify(this.new_tweet_text);
+                    this.api.sendTweet(1, this.new_tweet_text);
+                }));
             }
         }));
 
         /* Debug for tweet */
-        // this.api.getMessageDebug(0, Lang.bind(this, function() {
-        //     if (!arguments[0]) {
-        //         let item = new OscWidget.TweetItem("No data");
-        //         this.list.addMenuItem(item);
-        //     } else {
-        //         let msg = arguments[0];
+        this.api.getMessageDebug(0, Lang.bind(this, function() {
+            if (!arguments[0]) {
+                let item = new OscWidget.TweetItem("No data");
+                this.list.addMenuItem(item);
+            } else {
+                let msg = arguments[0];
 
-        //         for (var i in msg) {
-        //             if (i == "tweetlist") {
-        //                 for (var j in msg[i]) {
-        //                     let item = new OscWidget.TweetItem(msg[i][j]);
-        //                     this.list.addMenuItem(item);
-        //                 }
-        //                 this.showNotify("End");
-        //             }
-        //         }
-        //     }
-        // }));
+                for (var i in msg) {
+                    if (i == "tweetlist") {
+                        for (var j in msg[i]) {
+                            let item = new OscWidget.TweetItem(msg[i][j]);
+                            this.list.addMenuItem(item);
+                        }
+                        this.showNotify("End");
+                    }
+                }
+            }
+        }));
     },
 
     hideNotify: function() {
