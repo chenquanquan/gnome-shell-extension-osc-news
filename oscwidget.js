@@ -6,6 +6,30 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Ellipsize = imports.gi.Pango.EllipsizeMode;
 
+const SimpleItem = new Lang.Class({
+    Name: 'OscNew.TweetItem',
+    Extends: PopupMenu.PopupBaseMenuItem,
+
+    _init: function(item) {
+        this.parent(0.0, item);
+
+        this.box =  new St.BoxLayout({vertical:true});
+
+        this.label = new St.Label({text:item});
+
+        this.label.clutter_text.set_ellipsize(Ellipsize.NONE);
+        this.label.clutter_text.set_line_wrap(true);
+        this.label.clutter_text.set_line_wrap_mode(imports.gi.Pango.WrapMode.WORD_CHAR);
+
+        this.box.add(this.label);
+        this.actor.add_child(this.box);
+    },
+
+    destroy: function() {
+        this.parent();
+    }
+});
+
 /* the tweet item
  * @item:
  *     author	"xxx"

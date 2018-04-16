@@ -1,6 +1,7 @@
 
 const Lang = imports.lang;
 const Soup = imports.gi.Soup;
+const Goa = imports.gi.Goa;
 
 let _httpSession;
 
@@ -15,12 +16,26 @@ let oauth2_uri = "https://www.oschina.net/action/oauth2/authorize";
 let debug_uri = "https://www.oschina.net/action/openapi/tweet_list";
 let tweet_pub_uri = "https://www.oschina.net/action/openapi/tweet_pub";
 
+let agent = 'gnome-shell-extension-osc-news via libsoup';
+
+var token;
+
 const OscApi = new Lang.Class({
     Name: 'OscNew.OscApi',
 
     _init: function() {
         _httpSession = new Soup.Session();
-        //_httpSession.user_agent = this.user_agent;
+        _httpSession.user_agent = agent;
+    },
+
+    getAccessToken: function(func) {
+        let here = this;
+
+        var client = Goa.Client.new_sync(null);
+        let accounts = client.get_accounts();
+
+        func.call(here, accounts);
+        return 0;
     },
 
     sendMessage: function(id, uri, params, func) {
