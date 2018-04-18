@@ -5,12 +5,8 @@ const Goa = imports.gi.Goa;
 
 let _httpSession;
 
-let client_id = "q93z5JTP7uDt3h6ca3k8";
 let client_secret = "XcSSY7gOwOCN2ZZBDdRje5u0BI8KSzzt";
-let redirect_uri = "https://extensions.gnome.org";
 let access_token = "457bb1e6-c6df-43eb-98d8-1bfb54491c03";
-
-let oauth2_uri = "https://www.oschina.net/action/oauth2/authorize";
 
 //let debug_uri = "https://www.oschina.net/action/openapi/tweet_list?access_token=457bb1e6-c6df-43eb-98d8-1bfb54491c03&pagesize=10&page=1&datatype=json";
 let debug_uri = "https://www.oschina.net/action/openapi/tweet_list";

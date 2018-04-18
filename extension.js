@@ -2,15 +2,15 @@
 const St = imports.gi.St;
 const Main = imports.ui.main;
 const Lang = imports.lang;
+const Util = imports.misc.util;
+const GObject = imports.gi.GObject;
 const Tweener = imports.ui.tweener;
 const ModalDialog = imports.ui.modalDialog;
 const Clutter = imports.gi.Clutter;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Ellipsize = imports.gi.Pango.EllipsizeMode;
-const Gtk = imports.gi.Gtk;
 const Gdk = imports.gi.Gdk;
-const WebKit2 = imports.gi.WebKit2;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -39,7 +39,7 @@ const QueryDialog = new Lang.Class({
                                  this.ok_callback();
                              this.close();
                          }),
-                           label: _('Ok'),
+                           label: _('OK'),
                          }]);
     },
 
@@ -49,37 +49,6 @@ const QueryDialog = new Lang.Class({
 
     open: function(ok_func) {
         this.ok_callback = ok_func;
-        this.parent();
-    }
-});
-
-const Oauth2Dialog = new Lang.Class({
-    Name: 'OscNew.QueryDialog',
-    //Extends: Gtk.Dialog,
-    Extends: ModalDialog.ModalDialog,
-
-    _init: function() {
-        this.parent({ styleClass: 'run-dialog',
-                      destroyOnClose: false });
-        this.label = new St.Label({
-            style_class: 'run-dialog-label',
-            text: _('OSC authorization')
-        });
-        this.contentLayout.add(this.label, { x_fill: false,
-                                        x_align: St.Align.START,
-                                        y_align: St.Align.START });
-
-
-        this.webkit = WebKit2.WebView.new();
-        this.contentLayout.add(this.webkit);
-
-        this.setButtons([{ action: this.close.bind(this),
-                           label: _('Cancel'),
-                           key: Clutter.Escape },
-                        ]);
-    },
-
-    open: function() {
         this.parent();
     }
 });
@@ -130,8 +99,7 @@ const OscNew = new Lang.Class({
         /* Debug for oauth entry */
         this.oauthItem = new PopupMenu.PopupBaseMenuItem();
         this.oauthItem.connect('activate', Lang.bind(this, function(actor, event) {
-            let dialog = new Oauth2Dialog();
-            dialog.open();
+            Util.spawn(["gnome-shell-extension-prefs", "osc-news@mt6276m.org"]);
         }));
         this.list.addMenuItem(this.oauthItem);
 
