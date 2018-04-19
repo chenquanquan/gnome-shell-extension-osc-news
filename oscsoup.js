@@ -4,17 +4,11 @@ const Soup = imports.gi.Soup;
 const Goa = imports.gi.Goa;
 
 let _httpSession;
-
-let client_secret = "XcSSY7gOwOCN2ZZBDdRje5u0BI8KSzzt";
-let access_token = "457bb1e6-c6df-43eb-98d8-1bfb54491c03";
-
-//let debug_uri = "https://www.oschina.net/action/openapi/tweet_list?access_token=457bb1e6-c6df-43eb-98d8-1bfb54491c03&pagesize=10&page=1&datatype=json";
-let debug_uri = "https://www.oschina.net/action/openapi/tweet_list";
+let tweet_uri = "https://www.oschina.net/action/openapi/tweet_list";
 let tweet_pub_uri = "https://www.oschina.net/action/openapi/tweet_pub";
+let token_uri = "https://www.oschina.net/action/openapi/token";
 
-let agent = 'gnome-shell-extension-osc-news via libsoup';
-
-var token;
+let agent = 'gnome-shell-extension-osc-news via lib soup';
 
 const OscApi = new Lang.Class({
     Name: 'OscNew.OscApi',
@@ -24,13 +18,35 @@ const OscApi = new Lang.Class({
         _httpSession.user_agent = agent;
     },
 
-    getAccessToken: function(func) {
-        let here = this;
+    getAccessToken: function(code, client_id, client_secret, grant_type,
+                             redirect_uri, data_type, func) {
+        let params = {
+            client_id: client_id,
+            client_secret: client_secret,
+            grant_type: grant_type,
+            redirect_uri: redirect_uri,
+            code:code,
+            dataType:data_type
+        };
 
-        var client = Goa.Client.new_sync(null);
-        let accounts = client.get_accounts();
+        this.sendMessage('access-token', token_uri, params, func);
 
-        func.call(here, accounts);
+        return 0;
+    },
+
+    parseSessionWithJson: function(_httpSession, message, func) {
+        if (!message.response_body.data) {
+            func.call(this, 0);
+            return 0;
+        }
+
+        try {
+            let jp = JSON.parse(message.response_body.data);
+            func.call(this, jp);
+        } catch (e) {
+            func.call(this, 0);
+            return 0;
+        }
         return 0;
     },
 
@@ -49,37 +65,26 @@ const OscApi = new Lang.Class({
         this.asyncSession[id] = 1;
         _httpSession.queue_message(message, function(_httpSession, message) {
             here.asyncSession[id] = 0;
-            if (!message.response_body.data) {
-                func.call(here, 0);
-                return 0;
-            }
-
-            try {
-                let jp = JSON.parse(message.response_body.data);
-                func.call(here, jp);
-            } catch (e) {
-                func.call(here, 0);
-                return 0;
-            }
+            here.parseSessionWithJson(_httpSession, message, func);
             return 0;
         });
     },
 
-    sendTweet: function(id, message, func) {
+    sendTweet: function(token, message, func) {
         let params = {
-            access_token: access_token,
+            access_token: token,
             msg: message
         };
-        this.sendMessage(id, tweet_pub_uri, params, func);
+        this.sendMessage('sendTweet', tweet_pub_uri, params, func);
     },
 
-    getMessageDebug: function(id, func) {
+    getTweet: function(token, func) {
         let params = {
-            access_token: access_token,
+            access_token: token,
             pagesize: "2",
             page: "1",
             datatype: "json"
         };
-        this.sendMessage(id, debug_uri, params, func);
+        this.sendMessage('getTweet', tweet_uri, params, func);
     },
 });

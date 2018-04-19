@@ -9,11 +9,16 @@ const WebKit = imports.gi.WebKit2;
 
 const Gettext = imports.gettext.domain('osc-news');
 
-let client_id = "q93z5JTP7uDt3h6ca3k8";
-let redirect_uri = "https://extensions.gnome.org";
-//https://www.oschina.net/action/oauth2/authorize?response_type=code&client_id={client_id}①&redirect_uri={redirect_uri}②
-//let oauth2_uri = "https://www.oschina.net/action/oauth2/authorize";
-let oauth2_uri = "https://www.oschina.net/action/oauth2/authorize?response_type=code&" + "client_id=" + client_id + "&redirect_uri=" + redirect_uri;
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
+
+const OSC_NEWS_SETTINGS_SCHEMA = 'org.gnome.shell.extensions.osc-news';
+const KEY_OAUTH_CODE = 'oauth-code';
+const KEY_ACCESS_TOKEN = 'access-token';
+const KEY_CLIENT_ID = 'client-id';
+const KEY_CLIENT_SECRET = 'client-secret';
+const KEY_REDIRECT_URI = 'redirect-uri';
 
 const _ = Gettext.gettext;
 const N_ = function (e) {
@@ -21,6 +26,33 @@ const N_ = function (e) {
 };
 
 function init() {
+}
+
+// Reference from https://www.cnblogs.com/karila/p/5991340.html
+function GetRequest(url) {
+    var theRequest = new Object();
+    var index = url.indexOf('?');
+
+    if (index != -1) {
+        var str = url.substr(index+1);
+        var strs = str.split('&');
+        for(var i = 0; i < strs.length; i ++) {
+            theRequest[strs[i].split('=')[0]]=unescape(strs[i].split('=')[1]);
+        }
+    }
+    return theRequest;
+}
+
+//https://www.oschina.net/action/oauth2/authorize?response_type=code&client_id={client_id}①&redirect_uri={redirect_uri}②
+function GenericOauthUri(settings) {
+    let client_id = settings.get_string(KEY_CLIENT_ID);
+    let redirect_uri = settings.get_string(KEY_REDIRECT_URI);
+
+    let oauth2_uri = "https://www.oschina.net/action/oauth2/authorize?response_type=code&";
+    oauth2_uri += "client_id=" + client_id;
+    oauth2_uri += "&redirect_uri=" + redirect_uri;
+
+    return oauth2_uri;
 }
 
 const LoginWindow = new Lang.Class({
@@ -31,6 +63,8 @@ const LoginWindow = new Lang.Class({
     _init: function(params) {
         this.parent(params);
 
+        this._Settings = Convenience.getSettings(OSC_NEWS_SETTINGS_SCHEMA);
+
         this._webContext = WebKit.WebContext.new_ephemeral();
         this._webContext.set_cache_model(WebKit.CacheModel.DOCUMENT_VIEWER);
         this._webContext.set_network_proxy_settings(WebKit.NetworkProxyMode.NO_PROXY, null);
@@ -38,6 +72,7 @@ const LoginWindow = new Lang.Class({
         this._webView = WebKit.WebView.new_with_context(this._webContext);
         this._webView.connect('load-changed', Lang.bind(this, this._onLoadChanged));
 
+        let oauth2_uri = GenericOauthUri(this._Settings);
         this._webView.load_uri(oauth2_uri);
 
         this.add(this._webView);
@@ -47,11 +82,17 @@ const LoginWindow = new Lang.Class({
 
     _onLoadChanged: function(view, loadEvent) {
         if (loadEvent == WebKit.LoadEvent.REDIRECTED) {
-            log(view.uri);
+            let url = view.uri;
+            let ret = GetRequest(url);
+            for (var i in ret) {
+                if (i == 'code') {
+                    this._Settings.set_string(KEY_OAUTH_CODE, ret[i]);
+                    this.close();
+                }
+            }
         }
+
     },
-
-
 });
 
 const App = new Lang.Class({
@@ -77,7 +118,7 @@ const App = new Lang.Class({
             dialog.show_all();
         }));
         this.pack_start(loginButton, false, false, 0);
-    }
+    },
 });
 
 function buildPrefsWidget() {

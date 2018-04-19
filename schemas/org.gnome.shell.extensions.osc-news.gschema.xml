@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+        <schema id="org.gnome.shell.extensions.osc-news" path="/org/gnome/shell/extensions/osc-news/">
+                <key type="s" name="oauth-code">
+                        <default>'xxxxx'</default>
+                        <summary>The oauth code in url</summary>
+                </key>
+                <key type="s" name="access-token">
+                        <default>'xxxxx'</default>
+                        <summary>Access token of account</summary>
+                </key>
+                <key type="s" name="client-id">
+                        <default>'q93z5JTP7uDt3h6ca3k8'</default>
+                        <summary>Client id of the extension</summary>
+                </key>
+                <key type="s" name="client-secret">
+                        <default>'XcSSY7gOwOCN2ZZBDdRje5u0BI8KSzzt'</default>
+                        <summary>Client secret of the extension</summary>
+                </key>
+                <key type="s" name="redirect-uri">
+                        <default>'https://extensions.gnome.org'</default>
+                        <summary>Redirect uri of the extension</summary>
+                </key>
+        </schema>
+</schemalist>
