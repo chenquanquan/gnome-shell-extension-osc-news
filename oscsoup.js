@@ -4,9 +4,11 @@ const Soup = imports.gi.Soup;
 const Goa = imports.gi.Goa;
 
 let _httpSession;
+let osc_url = "https://www.oschina.net";
 let tweet_uri = "https://www.oschina.net/action/openapi/tweet_list";
 let tweet_pub_uri = "https://www.oschina.net/action/openapi/tweet_pub";
 let token_uri = "https://www.oschina.net/action/openapi/token";
+let get_my_info_uri = osc_url + "/action/openapi/my_information";
 
 let agent = 'gnome-shell-extension-osc-news via lib soup';
 
@@ -18,23 +20,7 @@ const OscApi = new Lang.Class({
         _httpSession.user_agent = agent;
     },
 
-    getAccessToken: function(code, client_id, client_secret, grant_type,
-                             redirect_uri, data_type, func) {
-        let params = {
-            client_id: client_id,
-            client_secret: client_secret,
-            grant_type: grant_type,
-            redirect_uri: redirect_uri,
-            code:code,
-            dataType:data_type
-        };
-
-        this.sendMessage('access-token', token_uri, params, func);
-
-        return 0;
-    },
-
-    parseSessionWithJson: function(_httpSession, message, func) {
+    _parseSessionWithJson: function(_httpSession, message, func) {
         if (!message.response_body.data) {
             func.call(this, 0);
             return 0;
@@ -50,7 +36,7 @@ const OscApi = new Lang.Class({
         return 0;
     },
 
-    sendMessage: function(id, uri, params, func) {
+    _sendMessage: function(id, uri, params, func) {
         let here = this;
         let message = Soup.form_request_new_from_hash('GET', uri, params);
 
@@ -65,9 +51,25 @@ const OscApi = new Lang.Class({
         this.asyncSession[id] = 1;
         _httpSession.queue_message(message, function(_httpSession, message) {
             here.asyncSession[id] = 0;
-            here.parseSessionWithJson(_httpSession, message, func);
+            here._parseSessionWithJson(_httpSession, message, func);
             return 0;
         });
+    },
+
+    getAccessToken: function(code, client_id, client_secret, grant_type,
+                             redirect_uri, data_type, func) {
+        let params = {
+            client_id: client_id,
+            client_secret: client_secret,
+            grant_type: grant_type,
+            redirect_uri: redirect_uri,
+            code:code,
+            dataType:data_type
+        };
+
+        this._sendMessage('access-token', token_uri, params, func);
+
+        return 0;
     },
 
     sendTweet: function(token, message, func) {
@@ -75,7 +77,7 @@ const OscApi = new Lang.Class({
             access_token: token,
             msg: message
         };
-        this.sendMessage('sendTweet', tweet_pub_uri, params, func);
+        this._sendMessage('sendTweet', tweet_pub_uri, params, func);
     },
 
     getTweet: function(token, func) {
@@ -85,6 +87,14 @@ const OscApi = new Lang.Class({
             page: "1",
             datatype: "json"
         };
-        this.sendMessage('getTweet', tweet_uri, params, func);
+        this._sendMessage('getTweet', tweet_uri, params, func);
     },
+
+    getMyInformation: function(token, func) {
+        let params = {
+            access_token: token,
+            datatype: "json"
+        };
+        this._sendMessage('getMyInformation', get_my_info_uri, params, func);
+    }
 });

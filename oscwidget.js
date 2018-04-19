@@ -2,7 +2,6 @@
 const St = imports.gi.St;
 const Main = imports.ui.main;
 const Lang = imports.lang;
-const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Ellipsize = imports.gi.Pango.EllipsizeMode;
 

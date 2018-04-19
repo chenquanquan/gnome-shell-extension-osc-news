@@ -9,7 +9,6 @@ const ModalDialog = imports.ui.modalDialog;
 const Clutter = imports.gi.Clutter;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-const Ellipsize = imports.gi.Pango.EllipsizeMode;
 const Gdk = imports.gi.Gdk;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -24,6 +23,8 @@ const KEY_ACCESS_TOKEN = 'access-token';
 const KEY_CLIENT_ID = 'client-id';
 const KEY_CLIENT_SECRET = 'client-secret';
 const KEY_REDIRECT_URI = 'redirect-uri';
+
+let _News;
 
 const QueryDialog = new Lang.Class({
     Name: 'OscNew.QueryDialog',
@@ -106,12 +107,12 @@ const OscNew = new Lang.Class({
         }));
 
         /* Debug for oauth entry */
-        this.oauthItem = new PopupMenu.PopupBaseMenuItem();
+        this.oauthItem = new OscWidget.SimpleItem("Login");
+        this.menu.addMenuItem(this.pubSect);
         this.oauthItem.connect('activate', Lang.bind(this, function(actor, event) {
             Util.spawn(["gnome-shell-extension-prefs", "osc-news@mt6276m.org"]);
         }));
         this.list.addMenuItem(this.oauthItem);
-
     },
 
     hideNotify: function() {
@@ -232,8 +233,6 @@ const OscNew = new Lang.Class({
         this.destroy();
     }
 });
-
-let _News;
 
 function init() {
     _News = new OscNew();
