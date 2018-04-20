@@ -107,18 +107,11 @@ const OscNew = new Lang.Class({
         this.actor.add_actor(hbox);
         this.actor.add_style_class_name('panel-status-button');
 
-        // /* Debug for oauth entry */
-        // this.oauthItem = new OscWidget.SimpleItem("Login");
-        // this.menu.addMenuItem(this.pubSect);
-        // this.oauthItem.connect('activate', Lang.bind(this, function(actor, event) {
-        //     Util.spawn(["gnome-shell-extension-prefs", Me.metadata.uuid]);
-        // }));
-        // this.list.addMenuItem(this.oauthItem);
         this.userItem = new OscWidget.OscAccountSect();
         this.menu.addMenuItem(this.userItem);
-        // this.userItem.connect('activate', Lang.bind(this, function(obj, event) {
-        //     Util.spawn(["gnome-shell-extension-prefs", Me.metadata.uuid]);
-        // }));
+        this.userItem.user.connect('activate', Lang.bind(this, function() {
+                 Util.spawn(["gnome-shell-extension-prefs", Me.metadata.uuid]);
+        }));
 
         this.list = new OscWidget.TweetList();
         this.menu.addMenuItem(this.list);
@@ -137,7 +130,8 @@ const OscNew = new Lang.Class({
                 this.dialog.setMessage("Send:" + this.new_tweet_text);
                 this.dialog.open(Lang.bind(this, function() {
                     this.showNotify(this.new_tweet_text);
-                    // this.api.sendTweet(this.access_token, this.new_tweet_text);
+                    this.api.sendTweet(this.access_token, this.new_tweet_text);
+                    //this.getTweetItemDebug();
                 }));
             }
         }));

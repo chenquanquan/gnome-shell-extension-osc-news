@@ -122,34 +122,12 @@ const OscAccountSect = new Lang.Class({
 
     _init: function() {
         this.parent();
-        this.box =  new St.BoxLayout({vertical:true});
-        this.box_notify =  new St.BoxLayout({vertical:false});
 
-        this.user = new St.Label({text:"Login"});
-        this.user.clutter_text.set_ellipsize(Ellipsize.NONE);
-        this.user.clutter_text.set_line_wrap(true);
-        this.user.clutter_text.set_line_wrap_mode(imports.gi.Pango.WrapMode.WORD_CHAR);
-
-        this.reply = new St.Label({text:"0"});
-        this.msg = new St.Label({text:"0"});
-        this.fans = new St.Label({text:"0"});
-        this.refer = new St.Label({text:"0"});
-        this.box_notify.add(this.reply);
-        this.box_notify.add(this.msg);
-        this.box_notify.add(this.fans);
-        this.box_notify.add(this.refer);
-
-        this.box.add(this.user);
-        this.box.add(this.box_notify);
-
-        this.actor.add_child(this.box);
+        this.user = new PopupMenu.PopupMenuItem("Login");
+        this.addMenuItem(this.user);
     },
 
     setUser: function(user, reply, msg, fans, refer) {
-        this.user.set_text(user);
-        this.reply.set_text(reply);
-        this.msg.set_text(msg);
-        this.fans.set_text(fans);
-        this.refer.set_text(refer);
+        this.user.label.set_text(user);
     }
 });
