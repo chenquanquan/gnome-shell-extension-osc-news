@@ -1,7 +1,7 @@
 ## gnome-shell-extension-osc-news
  *gnome-shell-extension-osc-news* is a simple extension for displaying oschina news in GNOME Shell 
  
- ![Screenshot](https://gitee.com/mt6276m/gnome-shell-extension-osc-news/raw/master/screenshot.png)
+ ![Screenshot](data/screenshot.png)
 
 
 ## Installation
