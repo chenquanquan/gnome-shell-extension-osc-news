@@ -269,7 +269,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="cancel-botton">
+          <object class="GtkButton" id="cancel-button">
             <property name="label" translatable="yes">Cancel</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>

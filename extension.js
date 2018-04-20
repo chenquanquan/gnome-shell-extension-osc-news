@@ -23,6 +23,17 @@ const KEY_ACCESS_TOKEN = 'access-token';
 const KEY_CLIENT_ID = 'client-id';
 const KEY_CLIENT_SECRET = 'client-secret';
 const KEY_REDIRECT_URI = 'redirect-uri';
+const KEY_UID = "uid";
+const KEY_USER_NAME = "user-name";
+const KEY_USER_PLACE = "user-place";
+const KEY_USER_PLATFORMS = "user-platforms";
+const KEY_USER_EXPERTISE = "user-expertise";
+const KEY_JOIN_TIME = "join-time";
+const KEY_LAST_LOGIN_TIME = "last-login-time";
+const KEY_PORTRAIT = "portrait";
+const KEY_FANS_COUNT = "fans-count";
+const KEY_FAVORITE_COUNT = "favorite-count";
+const KEY_FOLLOWERS_COUNT = "followers-count";
 
 let _News;
 
@@ -110,7 +121,7 @@ const OscNew = new Lang.Class({
         this.oauthItem = new OscWidget.SimpleItem("Login");
         this.menu.addMenuItem(this.pubSect);
         this.oauthItem.connect('activate', Lang.bind(this, function(actor, event) {
-            Util.spawn(["gnome-shell-extension-prefs", "osc-news@mt6276m.org"]);
+            Util.spawn(["gnome-shell-extension-prefs", Me.metadata.uuid]);
         }));
         this.list.addMenuItem(this.oauthItem);
     },
@@ -150,12 +161,80 @@ const OscNew = new Lang.Class({
         this._initConfig();
     },
 
+    _updateUserData: function() {
+        this.api.getMyInfomation(
+            this.access_token,
+            Lang.bind(this, function(msg) {
+                for (var i in msg) {
+                    log(i + msg[i]);
+                    switch (i) {
+                    case 'uid':
+                        this.uid = msg[i];
+                        this._Settings.set_string(KEY_UID, msg[i]);
+                        break;
+                    case 'name':
+                        this.user_name = msg[i];
+                        this._Settings.set_string(KEY_USER_NAME, msg[i]);
+                        break;
+                    case 'city':
+                        this.user_place = msg[i];
+                        this._Settings.set_string(KEY_USER_PLACE, msg[i]);
+                        break;
+                    case 'platforms':
+                        let plat = '';
+                        for (var p in msg[i]) {
+                            plat += msg[i][p] + ',';
+                        }
+                        this.platforms = plat;
+                        this._Settings.set_string(KEY_USER_PLATFORMS, plat);
+                        break;
+                    case 'expertise':
+                        let exper = '';
+                        for (var e in msg[i]) {
+                            exper += msg[i][e] + ',';
+                        }
+                        this.expertise = exper;
+                        this._Settings.set_string(KEY_USER_EXPERTISE, exper);
+                        break;
+                    case 'joinTime':
+                        this.join_time = msg[i];
+                        this._Settings.set_string(KEY_JOIN_TIME, msg[i]);
+                        break;
+                    case 'lastLoginTime':
+                        this.last_login_time = msg[i];
+                        this._Settings.set_string(KEY_LAST_LOGIN_TIME, msg[i]);
+                        break;
+                    case 'portrait':
+                        this.portrait = msg[i];
+                        this._Settings.set_string(KEY_PORTRAIT, msg[i]);
+                        break;
+                    case 'fansCount':
+                        this.fans_count = msg[i];
+                        this._Settings.set_string(KEY_FANS_COUNT, msg[i]);
+                        break;
+                    case 'favoriteCount':
+                        this.favorite_count = msg[i];
+                        this._Settings.set_string(KEY_FAVORITE_COUNT, msg[i]);
+                        break;
+                    case 'followersCount':
+                        this.followers_count = msg[i];
+                        this._Settings.set_string(KEY_FOLLOWERS_COUNT, msg[i]);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            })
+        );
+    },
+
     _initConfig: function() {
         this.code = this._Settings.get_string(KEY_OAUTH_CODE);
         this.access_token = this._Settings.get_string(KEY_ACCESS_TOKEN);
         this.client_id = this._Settings.get_string(KEY_CLIENT_ID);
         this.client_secret = this._Settings.get_string(KEY_CLIENT_SECRET);
         this.redirect_uri = this._Settings.get_string(KEY_REDIRECT_URI);
+        this._updateUserData();
     },
 
     _refreshConfig: function() {
@@ -190,6 +269,7 @@ const OscNew = new Lang.Class({
 
         if (access_token != this.access_token) {
             this.access_token = access_token;
+            this._updateUserData();
         }
         if (client_id != this.client_id) {
             this.client_id = client_id;

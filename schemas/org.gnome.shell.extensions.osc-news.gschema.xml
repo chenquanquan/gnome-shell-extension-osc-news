@@ -21,5 +21,38 @@
                         <default>'https://extensions.gnome.org'</default>
                         <summary>Redirect uri of the extension</summary>
                 </key>
+                <key type="s" name="uid">
+                    <default>'00000'</default>
+                </key>
+                <key type="s" name="user-name">
+                    <default>'OSChina'</default>
+                </key>
+                <key type="s" name="user-place">
+                    <default>'Moon'</default>
+                </key>
+                <key type="s" name="user-platforms">
+                    <default>'PHP'</default>
+                </key>
+                <key type="s" name="user-expertise">
+                    <default>'Computer repair'</default>
+                </key>
+                <key type="s" name="join-time">
+                    <default>'2000-01-01 01:01:01'</default>
+                </key>
+                <key type="s" name="last-login-time">
+                    <default>'2000-01-01 01:01:01'</default>
+                </key>
+                <key type="s" name="portrait">
+                    <default>'http://www.oschina.net/uploads/user/44/89964_50.jpg?t=1376365607000'</default>
+                </key>
+                <key type="s" name="fans-count">
+                    <default>"0"</default>
+                </key>
+                <key type="s" name="favorite-count">
+                    <default>"0"</default>
+                </key>
+                <key type="s" name="followers-count">
+                    <default>"0"</default>
+                </key>
         </schema>
 </schemalist>

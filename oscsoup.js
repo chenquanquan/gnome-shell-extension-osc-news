@@ -90,7 +90,7 @@ const OscApi = new Lang.Class({
         this._sendMessage('getTweet', tweet_uri, params, func);
     },
 
-    getMyInformation: function(token, func) {
+    getMyInfomation: function(token, func) {
         let params = {
             access_token: token,
             datatype: "json"
