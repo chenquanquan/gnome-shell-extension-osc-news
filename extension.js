@@ -11,6 +11,8 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Gdk = imports.gi.Gdk;
 
+const Mainloop = imports.mainloop;
+
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
@@ -84,6 +86,17 @@ const OscNew = new Lang.Class({
         this._loadConfig();
         this.dialog = new QueryDialog("dialog message");
         this._createContainer();
+        this._refreshUI();
+
+        this._initTimer();
+    },
+
+    _initTimer: function() {
+        this.timeout = Mainloop.timeout_add_seconds(60, Lang.bind(this, function() {
+            this.getTweetItemDebug();
+            return true; // repeating
+        }));
+
     },
 
     _createContainer: function() {
@@ -94,6 +107,19 @@ const OscNew = new Lang.Class({
         this.actor.add_actor(hbox);
         this.actor.add_style_class_name('panel-status-button');
 
+        // /* Debug for oauth entry */
+        // this.oauthItem = new OscWidget.SimpleItem("Login");
+        // this.menu.addMenuItem(this.pubSect);
+        // this.oauthItem.connect('activate', Lang.bind(this, function(actor, event) {
+        //     Util.spawn(["gnome-shell-extension-prefs", Me.metadata.uuid]);
+        // }));
+        // this.list.addMenuItem(this.oauthItem);
+        this.userItem = new OscWidget.OscAccountSect();
+        this.menu.addMenuItem(this.userItem);
+        // this.userItem.connect('activate', Lang.bind(this, function(obj, event) {
+        //     Util.spawn(["gnome-shell-extension-prefs", Me.metadata.uuid]);
+        // }));
+
         this.list = new OscWidget.TweetList();
         this.menu.addMenuItem(this.list);
 
@@ -102,7 +128,6 @@ const OscNew = new Lang.Class({
 
         this.pubSect = new OscWidget.TweetPubSect();
         this.menu.addMenuItem(this.pubSect);
-
         this.pubSect.entry.clutter_text.connect('key-press-event', Lang.bind(this, function(obj, event) {
             let symbol = event.get_key_symbol();
             let keyname = Gdk.keyval_name(symbol);
@@ -117,13 +142,6 @@ const OscNew = new Lang.Class({
             }
         }));
 
-        /* Debug for oauth entry */
-        this.oauthItem = new OscWidget.SimpleItem("Login");
-        this.menu.addMenuItem(this.pubSect);
-        this.oauthItem.connect('activate', Lang.bind(this, function(actor, event) {
-            Util.spawn(["gnome-shell-extension-prefs", Me.metadata.uuid]);
-        }));
-        this.list.addMenuItem(this.oauthItem);
     },
 
     hideNotify: function() {
@@ -159,6 +177,11 @@ const OscNew = new Lang.Class({
         this._Settings = Convenience.getSettings(OSC_NEWS_SETTINGS_SCHEMA);
         this._Settings.connect("changed", Lang.bind(this, this._refreshConfig));
         this._initConfig();
+    },
+
+    _refreshUI: function() {
+        if (this.userItem)
+            this.userItem.setUser(this.user_name, '0', '0', '0', '0');
     },
 
     _writeUserData: function() {
@@ -238,6 +261,7 @@ const OscNew = new Lang.Class({
                     }
                 }
                 this._writeUserData();
+                this._refreshUI();
             })
         );
     },
@@ -248,6 +272,19 @@ const OscNew = new Lang.Class({
         this.client_id = this._Settings.get_string(KEY_CLIENT_ID);
         this.client_secret = this._Settings.get_string(KEY_CLIENT_SECRET);
         this.redirect_uri = this._Settings.get_string(KEY_REDIRECT_URI);
+
+        this.uid = this._Settings.get_string(KEY_UID);
+        this.user_name = this._Settings.get_string(KEY_USER_NAME);
+        this.user_place = this._Settings.get_string(KEY_USER_PLACE);
+        this.platforms = this._Settings.get_string(KEY_USER_PLATFORMS);
+        this.expertise = this._Settings.get_string(KEY_USER_EXPERTISE);
+        this.join_time = this._Settings.get_string(KEY_JOIN_TIME);
+        this.last_login_time = this._Settings.get_string(KEY_LAST_LOGIN_TIME);
+        this.portrait = this._Settings.get_string(KEY_PORTRAIT);
+        this.fans_count = this._Settings.get_string(KEY_FANS_COUNT);
+        this.favorite_count = this._Settings.get_string(KEY_FAVORITE_COUNT);
+        this.followers_count = this._Settings.get_string(KEY_FOLLOWERS_COUNT);
+
         this._updateUserData();
     },
 
@@ -312,7 +349,6 @@ const OscNew = new Lang.Class({
                             let item = new OscWidget.TweetItem(msg[i][j]);
                             this.list.addMenuItem(item);
                         }
-                        this.showNotify("End");
                     }
                 }
             }

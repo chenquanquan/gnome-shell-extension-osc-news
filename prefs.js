@@ -3,6 +3,7 @@ const GObject = imports.gi.GObject;
 const Lang = imports.lang;
 const WebKit = imports.gi.WebKit2;
 const GtkBuilder = Gtk.Builder;
+const GdkPixbuf = imports.gi.GdkPixbuf;
 
 const Gettext = imports.gettext.domain('osc-news');
 
@@ -29,7 +30,6 @@ const KEY_PORTRAIT = 'portrait';
 const KEY_FANS_COUNT = 'fans-count';
 const KEY_FAVORITE_COUNT = 'favorite-count';
 const KEY_FOLLOWERS_COUNT = 'followers-count';
-
 
 const _ = Gettext.gettext;
 const N_ = function (e) {
@@ -113,10 +113,8 @@ const App = new GObject.Class({
         this.Window.add_from_file(EXTENSIONDIR + "/osc-news-settings.ui");
         this.MainWidget = this.Window.get_object("main-widget");
         this.loginButton = this.Window.get_object('login-button');
-        this.cancelButton = this.Window.get_object('cancel-button');
 
         this.loginButton.connect('clicked', Lang.bind(this, this._login));
-        //this.cancelButton.connect('clicked', Lang.bind(this, this.close));
     },
 
     _login: function(object) {
@@ -147,10 +145,14 @@ const App = new GObject.Class({
                 log("Error:" + name + "," + widget_config_list);
             }
         }
-        let icon = this.Window.get_object('user-icon');
-        let portrait = this._Settings.get_string(KEY_PORTRAIT);
-        icon.set_from_resource(portrait);
+        this._loadUserPhoto();
     },
+
+    _loadUserPhoto: function() {
+        let widget = this.Window.get_object('user-image');
+        let portrait = this._Settings.get_string(KEY_PORTRAIT);
+        /* undone */
+    }
 });
 
 function buildPrefsWidget() {
