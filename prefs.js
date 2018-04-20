@@ -18,17 +18,17 @@ const KEY_ACCESS_TOKEN = 'access-token';
 const KEY_CLIENT_ID = 'client-id';
 const KEY_CLIENT_SECRET = 'client-secret';
 const KEY_REDIRECT_URI = 'redirect-uri';
-const KEY_UID = "uid";
-const KEY_USER_NAME = "user-name";
-const KEY_USER_PLACE = "user-place";
-const KEY_USER_PLATFORMS = "user-platforms";
-const KEY_USER_EXPERTISE = "user-expertise";
-const KEY_JOIN_TIME = "join-time";
-const KEY_LAST_LOGIN_TIME = "last-login-time";
-const KEY_PORTRAIT = "portrait";
-const KEY_FANS_COUNT = "fans-count";
-const KEY_FAVORITE_COUNT = "favorite-count";
-const KEY_FOLLOWERS_COUNT = "followers-count";
+const KEY_UID = 'uid';
+const KEY_USER_NAME = 'user-name';
+const KEY_USER_PLACE = 'user-place';
+const KEY_USER_PLATFORMS = 'user-platforms';
+const KEY_USER_EXPERTISE = 'user-expertise';
+const KEY_JOIN_TIME = 'join-time';
+const KEY_LAST_LOGIN_TIME = 'last-login-time';
+const KEY_PORTRAIT = 'portrait';
+const KEY_FANS_COUNT = 'fans-count';
+const KEY_FAVORITE_COUNT = 'favorite-count';
+const KEY_FOLLOWERS_COUNT = 'followers-count';
 
 
 const _ = Gettext.gettext;
@@ -42,7 +42,7 @@ let widget_config_list = {
     'user-platforms': KEY_USER_PLATFORMS,
     "user-expertise": KEY_USER_EXPERTISE,
     "user-join-time": KEY_JOIN_TIME,
-    "last-login-time":  KEY_LAST_LOGIN_TIME,
+    "user-last-login-time":  KEY_LAST_LOGIN_TIME,
     "user-fans-count":KEY_FANS_COUNT,
     "user-favorite-count":KEY_FAVORITE_COUNT,
     "user-followers-count":KEY_FOLLOWERS_COUNT,
@@ -143,8 +143,13 @@ const App = new GObject.Class({
 
             if (value && widget) {
                 widget.set_text(value);
+            } else {
+                log("Error:" + name + "," + widget_config_list);
             }
         }
+        let icon = this.Window.get_object('user-icon');
+        let portrait = this._Settings.get_string(KEY_PORTRAIT);
+        icon.set_from_resource(portrait);
     },
 });
 
