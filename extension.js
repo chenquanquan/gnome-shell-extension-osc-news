@@ -92,7 +92,7 @@ const OscNew = new Lang.Class({
     },
 
     _initTimer: function() {
-        this.timeout = Mainloop.timeout_add_seconds(60, Lang.bind(this, function() {
+        this.timeout = Mainloop.timeout_add_seconds(60 * 5, Lang.bind(this, function() {
             this.getTweetItemDebug();
             return true; // repeating
         }));
@@ -337,6 +337,7 @@ const OscNew = new Lang.Class({
     getTweetItemDebug: function() {
         /* Debug for tweet */
         this.api.getTweet(this.access_token, Lang.bind(this, function() {
+            this.list.removeAll();
             if (!arguments[0]) {
                 let item = new OscWidget.TweetItem("No data");
                 this.list.addMenuItem(item);
