@@ -46,6 +46,8 @@ const TweetItem = new Lang.Class({
     _init: function(item) {
         this.parent(0.0, item);
 
+        this.item = item;
+
         this.box =  new St.BoxLayout({vertical:true});
 
         this.label = new St.Label({text:
@@ -65,6 +67,29 @@ const TweetItem = new Lang.Class({
         this.box.add(this.comment);
 
         this.actor.add_child(this.box);
+
+        this.connect('activate', Lang.bind(this, function() {
+            if (this.commentList !== undefined)
+                return;
+
+            this.com_box =  new St.BoxLayout({vertical:true});
+            this.commentList = '';
+            for (var i = 0; i < 10; i++) {
+                let comment = new St.Label({text: "comment"});
+                this.commentList[i] = comment;
+                this.com_box.add(comment);
+            }
+
+            this.com_entry = new St.Entry({
+                name: 'tweetCommentEntry',
+                hint_text: _('reply...'),
+                style_class:'run-dialog-entry',
+                track_hover: true,
+                can_focus: true
+            });
+            this.com_box.add(this.com_entry);
+            this.box.add(this.com_box);
+        }));
     },
 
     destroy: function() {

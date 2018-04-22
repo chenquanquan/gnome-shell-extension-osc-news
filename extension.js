@@ -93,7 +93,7 @@ const OscNew = new Lang.Class({
 
     _initTimer: function() {
         this.timeout = Mainloop.timeout_add_seconds(60 * 5, Lang.bind(this, function() {
-            this.getTweetItemDebug();
+            //this.getTweetItemDebug();
             return true; // repeating
         }));
 
@@ -135,6 +135,15 @@ const OscNew = new Lang.Class({
                 }));
             }
         }));
+
+        /* Debug for item */
+        let tweet1 = {
+            author: "guangpi",
+            body: "hello world",
+            commentCount: "10",
+        };
+        let tweetItem1 = new OscWidget.TweetItem(tweet1);
+        this.list.addMenuItem(tweetItem1);
 
     },
 
@@ -351,7 +360,7 @@ const OscNew = new Lang.Class({
     },
 
     start: function() {
-        this.getTweetItemDebug();
+        //this.getTweetItemDebug();
     },
 
     stop: function() {
