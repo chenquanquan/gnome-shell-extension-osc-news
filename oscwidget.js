@@ -75,9 +75,15 @@ const TweetItem = new Lang.Class({
             this.com_box =  new St.BoxLayout({vertical:true});
             this.commentList = '';
             for (var i = 0; i < 10; i++) {
-                let comment = new St.Label({text: "comment"});
+                let comment = new St.Button({
+                    child: new St.Label({text: "comment"})
+                });
                 this.commentList[i] = comment;
                 this.com_box.add(comment);
+                comment.connect('clicked', Lang.bind(this, function() {
+                    let label = new St.Label({text: 'new'});
+                    this.com_box.add(label);
+                }));
             }
 
             this.com_entry = new St.Entry({
