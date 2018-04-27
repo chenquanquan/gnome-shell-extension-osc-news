@@ -39,6 +39,9 @@ const OscApi = new Lang.Class({
     },
 
     _sendMessage: function(id, uri, params, func) {
+        log("id:" + id);
+        log("uri:" + uri);
+        log("params:" + params);
         let here = this;
         let message = Soup.form_request_new_from_hash('GET', uri, params);
 

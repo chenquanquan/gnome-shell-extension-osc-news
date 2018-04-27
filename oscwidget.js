@@ -43,12 +43,10 @@ const TweetItem = new Lang.Class({
     Name: 'OscNew.TweetItem',
     Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(item, token, comment_func) {
+    _init: function(item, commentList) {
         this.parent(0.0, item);
 
         this.item = item;
-        this.token = token;
-        this.comment_func = comment_func;
 
         this.box =  new St.BoxLayout({vertical:true});
 
@@ -71,14 +69,13 @@ const TweetItem = new Lang.Class({
         this.actor.add_child(this.box);
 
         this.connect('activate', Lang.bind(this, function() {
-            if (this.commentList !== undefined ||
-                item.commentCount == 0)
+            if (this.comment !== undefined)
                 return;
 
-            this.comment_func.call(this.token, this.item.id, Lang.bind(this, function() {
-                this.commentList = arguments[0];
-                this.com_box =  new St.BoxLayout({vertical:true});
+            this.comment = '';
+            this.com_box =  new St.BoxLayout({vertical:true});
 
+            if (commentList != null) {
                 for (var i in this.commentList) {
                     if (i == "commentList") {
                         for (var j in this.commentList[i]) {
@@ -88,6 +85,7 @@ const TweetItem = new Lang.Class({
                                         j.content})
                             });
                             this.com_box.add(commentItem);
+
                             commentItem.connect('clicked', Lang.bind(this, function() {
                                 if (this.com_entry !== undefined) {
                                     let entryText = this.com_entry.clutter_text;
@@ -97,21 +95,20 @@ const TweetItem = new Lang.Class({
                                     entryText.set_text(text);
                                 }
                             }));
-
                         }
                     }
                 };
+            };
 
-                this.com_entry = new St.Entry({
-                    name: 'tweetCommentEntry',
-                    hint_text: _('reply...'),
-                    style_class:'run-dialog-entry',
-                    track_hover: true,
-                    can_focus: true
-                });
-                this.com_box.add(this.com_entry);
-                this.box.add(this.com_box);
-            }));
+            this.com_entry = new St.Entry({
+                name: 'tweetCommentEntry',
+                hint_text: _('reply...'),
+                style_class:'run-dialog-entry',
+                track_hover: true,
+                can_focus: true
+            });
+            this.com_box.add(this.com_entry);
+            this.box.add(this.com_box);
         }));
     },
 
