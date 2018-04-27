@@ -136,15 +136,6 @@ const OscNew = new Lang.Class({
             }
         }));
 
-        /* Debug for item */
-        let tweet1 = {
-            author: "guangpi",
-            body: "hello world",
-            commentCount: "10",
-        };
-        let tweetItem1 = new OscWidget.TweetItem(tweet1);
-        this.list.addMenuItem(tweetItem1);
-
     },
 
     hideNotify: function() {
@@ -350,7 +341,9 @@ const OscNew = new Lang.Class({
                 for (var i in msg) {
                     if (i == "tweetlist") {
                         for (var j in msg[i]) {
-                            let item = new OscWidget.TweetItem(msg[i][j]);
+                            let item = new OscWidget.TweetItem(msg[i][j],
+                                                               this.acess_token,
+                                                               Lang.bind(this, this.api.getTweet));
                             this.list.addMenuItem(item);
                         }
                     }
@@ -360,7 +353,7 @@ const OscNew = new Lang.Class({
     },
 
     start: function() {
-        //this.getTweetItemDebug();
+        this.getTweetItemDebug();
     },
 
     stop: function() {

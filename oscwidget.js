@@ -43,10 +43,12 @@ const TweetItem = new Lang.Class({
     Name: 'OscNew.TweetItem',
     Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(item) {
+    _init: function(item, token, comment_func) {
         this.parent(0.0, item);
 
         this.item = item;
+        this.token = token;
+        this.comment_func = comment_func;
 
         this.box =  new St.BoxLayout({vertical:true});
 
@@ -69,32 +71,47 @@ const TweetItem = new Lang.Class({
         this.actor.add_child(this.box);
 
         this.connect('activate', Lang.bind(this, function() {
-            if (this.commentList !== undefined)
+            if (this.commentList !== undefined ||
+                item.commentCount == 0)
                 return;
 
-            this.com_box =  new St.BoxLayout({vertical:true});
-            this.commentList = '';
-            for (var i = 0; i < 10; i++) {
-                let comment = new St.Button({
-                    child: new St.Label({text: "comment"})
-                });
-                this.commentList[i] = comment;
-                this.com_box.add(comment);
-                comment.connect('clicked', Lang.bind(this, function() {
-                    let label = new St.Label({text: 'new'});
-                    this.com_box.add(label);
-                }));
-            }
+            this.comment_func.call(this.token, this.item.id, Lang.bind(this, function() {
+                this.commentList = arguments[0];
+                this.com_box =  new St.BoxLayout({vertical:true});
 
-            this.com_entry = new St.Entry({
-                name: 'tweetCommentEntry',
-                hint_text: _('reply...'),
-                style_class:'run-dialog-entry',
-                track_hover: true,
-                can_focus: true
-            });
-            this.com_box.add(this.com_entry);
-            this.box.add(this.com_box);
+                for (var i in this.commentList) {
+                    if (i == "commentList") {
+                        for (var j in this.commentList[i]) {
+                            let commentItem = new St.Button({
+                                child: new St.Label({
+                                    text: j.commentAuthor + ":" +
+                                        j.content})
+                            });
+                            this.com_box.add(commentItem);
+                            commentItem.connect('clicked', Lang.bind(this, function() {
+                                if (this.com_entry !== undefined) {
+                                    let entryText = this.com_entry.clutter_text;
+                                    let text = entryText.get_text();
+
+                                    text += ' @comment';
+                                    entryText.set_text(text);
+                                }
+                            }));
+
+                        }
+                    }
+                };
+
+                this.com_entry = new St.Entry({
+                    name: 'tweetCommentEntry',
+                    hint_text: _('reply...'),
+                    style_class:'run-dialog-entry',
+                    track_hover: true,
+                    can_focus: true
+                });
+                this.com_box.add(this.com_entry);
+                this.box.add(this.com_box);
+            }));
         }));
     },
 
