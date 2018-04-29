@@ -4,9 +4,10 @@ const Main = imports.ui.main;
 const Lang = imports.lang;
 const PopupMenu = imports.ui.popupMenu;
 const Ellipsize = imports.gi.Pango.EllipsizeMode;
+const Gdk = imports.gi.Gdk;
 
 const SimpleItem = new Lang.Class({
-    Name: 'OscNew.TweetItem',
+    Name: 'OscNew.SimpleItem',
     Extends: PopupMenu.PopupBaseMenuItem,
 
     _init: function(item) {
@@ -43,12 +44,13 @@ const TweetItem = new Lang.Class({
     Name: 'OscNew.TweetItem',
     Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(item, token, soup_api) {
+    _init: function(item, token, soup_api, reply_func) {
         this.parent(0.0, item);
 
         this.item = item;
         this.token = token;
         this.soup_api = soup_api;
+        this.reply_func = reply_func;
 
         this.box =  new St.BoxLayout({vertical:true});
 
@@ -76,12 +78,13 @@ const TweetItem = new Lang.Class({
 
             this.commentList = '';
             this.com_box =  new St.BoxLayout({vertical:true});
+            let id = item.id+"";
 
             if (item.commentCount != 0) {
                 let here = this;
                 this.soup_api.getTweetComment(
                     this.token,
-                    item.id+"",
+                    id,
                     Lang.bind(this, function() {
                         here.commentList = arguments[0];
                         for (var i in here.commentList) {
@@ -92,11 +95,11 @@ const TweetItem = new Lang.Class({
                                 }
                             }
                         };
-                        here._addCommentReplyEntry();
+                        here._addCommentReplyEntry(id);
                     })
                 );
             } else {
-                this._addCommentReplyEntry();
+                this._addCommentReplyEntry(id);
             }
 
         }));
@@ -121,7 +124,7 @@ const TweetItem = new Lang.Class({
         }));
     },
 
-    _addCommentReplyEntry: function() {
+    _addCommentReplyEntry: function(id) {
         this.com_entry = new St.Entry({
             name: 'tweetCommentEntry',
             hint_text: _('reply...'),
@@ -131,6 +134,22 @@ const TweetItem = new Lang.Class({
         });
         this.com_box.add(this.com_entry);
         this.box.add(this.com_box);
+
+        let here = this;
+
+        this.com_entry.clutter_text.connect(
+            'key-press-event',
+            Lang.bind(this, function(obj, event) {
+                let symbol = event.get_key_symbol();
+                let keyname = Gdk.keyval_name(symbol);
+
+                if (keyname === "Return") {
+                    log(here.token);
+                    log(id);
+                    log(obj.get_text());
+                    here.reply_func.call(this, here.token, id, obj.get_text());
+                }
+            }));
     },
 
     destroy: function() {

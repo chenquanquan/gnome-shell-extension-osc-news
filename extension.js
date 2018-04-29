@@ -126,16 +126,9 @@ const OscNew = new Lang.Class({
             let keyname = Gdk.keyval_name(symbol);
 
             if (keyname === "Return") {
-                this.new_tweet_text = obj.get_text();
-                this.dialog.setMessage("Send:" + this.new_tweet_text);
-                this.dialog.open(Lang.bind(this, function() {
-                    this.showNotify(this.new_tweet_text);
-                    this.api.sendTweet(this.access_token, this.new_tweet_text);
-                    //this.getTweetItemDebug();
-                }));
+                this.sendTweet(this.access_token, obj.get_text());
             }
         }));
-
     },
 
     hideNotify: function() {
@@ -165,6 +158,26 @@ const OscNew = new Lang.Class({
                                this.notify = null;
                            }),
                          });
+    },
+
+    sendTweet: function(token, tweet) {
+        this.dialog.setMessage("Send:" + tweet + "?");
+        this.dialog.open(Lang.bind(this, function() {
+            this.showNotify(tweet);
+            this.api.sendTweet(token, tweet, Lang.bind(this, this.messageErrorCheck));
+        }));
+    },
+
+    replyTweet: function(token, id, tweet) {
+        this.dialog.setMessage("Send:" + tweet + "?");
+        this.dialog.open(Lang.bind(this, function() {
+            this.showNotify(tweet);
+            this.api.sendTweetComment(token, id, tweet, Lang.bind(this, this.messageErrorCheck));
+        }));
+    },
+
+    messageErrorCheck: function() {
+        let msg = arguments[0];
     },
 
     _loadConfig: function() {
@@ -315,6 +328,7 @@ const OscNew = new Lang.Class({
         if (access_token != this.access_token) {
             this.access_token = access_token;
             this._updateUserData();
+            this.getTweetItemDebug();
         }
         if (client_id != this.client_id) {
             this.client_id = client_id;
@@ -333,7 +347,7 @@ const OscNew = new Lang.Class({
         this.api.getTweet(this.access_token, Lang.bind(this, function() {
             this.list.removeAll();
             if (!arguments[0]) {
-                let item = new OscWidget.TweetItem("No data");
+                let item = new OscWidget.SimpleItem("No data");
                 this.list.addMenuItem(item);
             } else {
                 let msg = arguments[0];
@@ -341,7 +355,11 @@ const OscNew = new Lang.Class({
                 for (var i in msg) {
                     if (i == "tweetlist") {
                         for (var j in msg[i]) {
-                            let item = new OscWidget.TweetItem(msg[i][j], this.access_token, this.api);
+                            let item = new OscWidget.TweetItem(
+                                msg[i][j],
+                                this.access_token,
+                                this.api,
+                                Lang.bind(this, this.replyTweet));
                             this.list.addMenuItem(item);
                         }
                     }
