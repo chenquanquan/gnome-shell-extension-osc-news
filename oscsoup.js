@@ -39,9 +39,6 @@ const OscApi = new Lang.Class({
     },
 
     _sendMessage: function(id, uri, params, func) {
-        log("id:" + id);
-        log("uri:" + uri);
-        log("params:" + params);
         let here = this;
         let message = Soup.form_request_new_from_hash('GET', uri, params);
 
@@ -99,7 +96,7 @@ const OscApi = new Lang.Class({
         let params = {
             id: id,
             catalog: "3", // 1-新闻/翻译|2-帖子|3-动弹|4-消息(私信 必须access_token)|5-博客 	-1
-            //access_token: token,
+            access_token: token,
             pagesize: "20",
             page: "1",
             datatype: "json"
@@ -111,9 +108,9 @@ const OscApi = new Lang.Class({
         let params = {
             access_token: token,
             id: id,
-            catalog: 3, // catalog 	true 	long 	评论对象类型：1-新闻或翻译，2-帖子、问答，3-动弹，4-私信
+            catalog: "3", // catalog 	true 	long 	评论对象类型：1-新闻或翻译，2-帖子、问答，3-动弹，4-私信
             content: content,
-            isPostToMyZone: 0, // 动弹是否转发到我的空间，1-转发，0-不转发。catalog 为 3 使用
+            isPostToMyZone: "0", // 动弹是否转发到我的空间，1-转发，0-不转发。catalog 为 3 使用
             datatype: "json"
         };
         this._sendMessage('sendTweetComment', comment_list_uri, params, func);

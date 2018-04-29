@@ -43,10 +43,12 @@ const TweetItem = new Lang.Class({
     Name: 'OscNew.TweetItem',
     Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(item, commentList) {
+    _init: function(item, token, soup_api) {
         this.parent(0.0, item);
 
         this.item = item;
+        this.token = token;
+        this.soup_api = soup_api;
 
         this.box =  new St.BoxLayout({vertical:true});
 
@@ -69,47 +71,66 @@ const TweetItem = new Lang.Class({
         this.actor.add_child(this.box);
 
         this.connect('activate', Lang.bind(this, function() {
-            if (this.comment !== undefined)
+            if (this.commentList !== undefined)
                 return;
 
-            this.comment = '';
+            this.commentList = '';
             this.com_box =  new St.BoxLayout({vertical:true});
 
-            if (commentList != null) {
-                for (var i in this.commentList) {
-                    if (i == "commentList") {
-                        for (var j in this.commentList[i]) {
-                            let commentItem = new St.Button({
-                                child: new St.Label({
-                                    text: j.commentAuthor + ":" +
-                                        j.content})
-                            });
-                            this.com_box.add(commentItem);
-
-                            commentItem.connect('clicked', Lang.bind(this, function() {
-                                if (this.com_entry !== undefined) {
-                                    let entryText = this.com_entry.clutter_text;
-                                    let text = entryText.get_text();
-
-                                    text += ' @comment';
-                                    entryText.set_text(text);
+            if (item.commentCount != 0) {
+                let here = this;
+                this.soup_api.getTweetComment(
+                    this.token,
+                    item.id+"",
+                    Lang.bind(this, function() {
+                        here.commentList = arguments[0];
+                        for (var i in here.commentList) {
+                            if (i == "commentList") {
+                                for (var j in here.commentList[i]) {
+                                    let comment = here.commentList[i][j];
+                                    here._addComment(here, comment);
                                 }
-                            }));
-                        }
-                    }
-                };
-            };
+                            }
+                        };
+                        here._addCommentReplyEntry();
+                    })
+                );
+            } else {
+                this._addCommentReplyEntry();
+            }
 
-            this.com_entry = new St.Entry({
-                name: 'tweetCommentEntry',
-                hint_text: _('reply...'),
-                style_class:'run-dialog-entry',
-                track_hover: true,
-                can_focus: true
-            });
-            this.com_box.add(this.com_entry);
-            this.box.add(this.com_box);
         }));
+    },
+
+    _addComment: function(here, comment) {
+        let commentItem = new St.Button({
+            child: new St.Label({
+                text: comment.commentAuthor + ":" +
+                    comment.content})
+        });
+        here.com_box.add(commentItem);
+
+        commentItem.connect('clicked', Lang.bind(here, function() {
+            if (here.com_entry !== undefined) {
+                let entryText = here.com_entry.clutter_text;
+                let text = entryText.get_text();
+
+                text += '@'+comment.commentAuthor+' ';
+                entryText.set_text(text);
+            }
+        }));
+    },
+
+    _addCommentReplyEntry: function() {
+        this.com_entry = new St.Entry({
+            name: 'tweetCommentEntry',
+            hint_text: _('reply...'),
+            style_class:'run-dialog-entry',
+            track_hover: true,
+            can_focus: true
+        });
+        this.com_box.add(this.com_entry);
+        this.box.add(this.com_box);
     },
 
     destroy: function() {

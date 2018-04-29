@@ -341,17 +341,8 @@ const OscNew = new Lang.Class({
                 for (var i in msg) {
                     if (i == "tweetlist") {
                         for (var j in msg[i]) {
-                            // if (msg[i][j].commentCount != 0) {
-                            //     this.api.getTweetComment(this.token, msg[i][j].id, Lang.bind(this, function() {
-                            //         let commentList = arguments[0];
-                            //         let item = new OscWidget.TweetItem(msg[i][j],
-                            //                                            commentList);
-                            //         this.list.addMenuItem(item);
-                            //     }));
-                            // } else {
-                                let item = new OscWidget.TweetItem(msg[i][j], null);
-                                this.list.addMenuItem(item);
-                            //}
+                            let item = new OscWidget.TweetItem(msg[i][j], this.access_token, this.api);
+                            this.list.addMenuItem(item);
                         }
                     }
                 }
