@@ -104,16 +104,17 @@ const OscApi = new Lang.Class({
         this._sendMessage('getTweetComment', comment_list_uri, params, func);
     },
 
-    sendTweetComment: function(token, id, content, func) {
+    sendTweetComment: function(token, msg_id, author_id, content, func) {
         let params = {
             access_token: token,
-            id: id,
+            id: msg_id,
+            authorid: author_id,
             catalog: "3", // catalog 	true 	long 	评论对象类型：1-新闻或翻译，2-帖子、问答，3-动弹，4-私信
             content: content,
             isPostToMyZone: "0", // 动弹是否转发到我的空间，1-转发，0-不转发。catalog 为 3 使用
             datatype: "json"
         };
-        this._sendMessage('sendTweetComment', comment_list_uri, params, func);
+        this._sendMessage('sendTweetComment', comment_reply_uri, params, func);
     },
 
     getMyInfomation: function(token, func) {

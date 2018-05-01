@@ -78,13 +78,14 @@ const TweetItem = new Lang.Class({
 
             this.commentList = '';
             this.com_box =  new St.BoxLayout({vertical:true});
-            let id = item.id+"";
+            let msg_id = item.id+"";
+            let author_id = item.authorid+"";
 
             if (item.commentCount != 0) {
                 let here = this;
                 this.soup_api.getTweetComment(
                     this.token,
-                    id,
+                    msg_id,
                     Lang.bind(this, function() {
                         here.commentList = arguments[0];
                         for (var i in here.commentList) {
@@ -95,11 +96,11 @@ const TweetItem = new Lang.Class({
                                 }
                             }
                         };
-                        here._addCommentReplyEntry(id);
+                        here._addCommentReplyEntry(msg_id, author_id);
                     })
                 );
             } else {
-                this._addCommentReplyEntry(id);
+                this._addCommentReplyEntry(msg_id, author_id);
             }
 
         }));
@@ -124,7 +125,7 @@ const TweetItem = new Lang.Class({
         }));
     },
 
-    _addCommentReplyEntry: function(id) {
+    _addCommentReplyEntry: function(msg_id, author_id) {
         this.com_entry = new St.Entry({
             name: 'tweetCommentEntry',
             hint_text: _('reply...'),
@@ -144,10 +145,7 @@ const TweetItem = new Lang.Class({
                 let keyname = Gdk.keyval_name(symbol);
 
                 if (keyname === "Return") {
-                    log(here.token);
-                    log(id);
-                    log(obj.get_text());
-                    here.reply_func.call(this, here.token, id, obj.get_text());
+                    here.reply_func.call(this, here.token, msg_id, author_id, obj.get_text());
                 }
             }));
     },
@@ -163,7 +161,7 @@ const TweetList = new Lang.Class({
 
     _init: function() {
         this.parent();
-        let scrollView = new St.ScrollView({
+        this.scrollView = new St.ScrollView({
             x_fill: true,
             y_fill: true,
             y_align: St.Align.START,
@@ -171,8 +169,8 @@ const TweetList = new Lang.Class({
             style_class: "osc-scroll-view-section"
         });
         this.innerMenu = new PopupMenu.PopupMenuSection();
-        scrollView.add_actor(this.innerMenu.actor);
-        this.actor.add_actor(scrollView);
+        this.scrollView.add_actor(this.innerMenu.actor);
+        this.actor.add_actor(this.scrollView);
     },
 
     addMenuItem: function(item) {

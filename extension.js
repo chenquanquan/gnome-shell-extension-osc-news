@@ -93,7 +93,7 @@ const OscNew = new Lang.Class({
 
     _initTimer: function() {
         this.timeout = Mainloop.timeout_add_seconds(60 * 5, Lang.bind(this, function() {
-            //this.getTweetItemDebug();
+            this.getTweetItemDebug();
             return true; // repeating
         }));
 
@@ -118,6 +118,12 @@ const OscNew = new Lang.Class({
 
         this.separator = new PopupMenu.PopupSeparatorMenuItem();
         this.menu.addMenuItem(this.separator);
+
+        this.updateItem = new PopupMenu.PopupMenuItem("Update");
+        this.menu.addMenuItem(this.updateItem);
+        this.updateItem.connect('activate', Lang.bind(this, function() {
+            this.getTweetItemDebug();
+        }));
 
         this.pubSect = new OscWidget.TweetPubSect();
         this.menu.addMenuItem(this.pubSect);
@@ -168,16 +174,20 @@ const OscNew = new Lang.Class({
         }));
     },
 
-    replyTweet: function(token, id, tweet) {
+    replyTweet: function(token, msg_id, author_id, tweet) {
         this.dialog.setMessage("Send:" + tweet + "?");
         this.dialog.open(Lang.bind(this, function() {
             this.showNotify(tweet);
-            this.api.sendTweetComment(token, id, tweet, Lang.bind(this, this.messageErrorCheck));
+            this.api.sendTweetComment(token, msg_id, author_id, tweet, Lang.bind(this, this.messageErrorCheck));
         }));
     },
 
     messageErrorCheck: function() {
         let msg = arguments[0];
+
+        for (var i in msg) {
+            //log("error:" + i + ":" + msg[i]);
+        }
     },
 
     _loadConfig: function() {
