@@ -379,6 +379,7 @@ const OscNew = new Lang.Class({
     },
 
     start: function() {
+        Main.panel.addToStatusArea('OscNew', _News);
         this.getTweetItemDebug();
     },
 
@@ -388,11 +389,10 @@ const OscNew = new Lang.Class({
 });
 
 function init() {
-    _News = new OscNew();
-    Main.panel.addToStatusArea('OscNew', _News);
 }
 
 function enable() {
+    _News = new OscNew();
     _News.start();
 }
 

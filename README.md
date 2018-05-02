@@ -8,6 +8,6 @@
 
 Run the following commands:
 
-	cd ~/.local/share/gnome-shell/extensions && git clone https://gitee.com/mt6276m/gnome-shell-extension-osc-news.git
+	cd ~/.local/share/gnome-shell/extensions && git clone https://gitee.com/mt6276m/gnome-shell-extension-osc-news.git osc-news@mt6276m.org
 
 Restart the shell and then enable the extension.
