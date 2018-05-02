@@ -81,7 +81,7 @@ const TweetItem = new Lang.Class({
             this.com_box =  new St.BoxLayout({
                 vertical:true,
                 x_align: Clutter.ActorAlign.START,
-                style_class: 'osc-tweet-comment'
+                style_class: 'osc-tweet-comment',
             });
             let msg_id = item.id+"";
             let author_id = item.authorid+"";
@@ -135,9 +135,10 @@ const TweetItem = new Lang.Class({
         this.com_entry = new St.Entry({
             name: 'tweetCommentEntry',
             //hint_text: _('reply...'),
-            style_class:'run-dialog-entry',
+            //style_class:'run-dialog-entry',
+            style_class:'osc-comment-entry',
             track_hover: true,
-            can_focus: true
+            can_focus: true,
         });
         this.com_box.add(this.com_entry);
         this.box.add(this.com_box);

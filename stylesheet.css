@@ -8,6 +8,10 @@
     padding:0 12px;
 }
 
+.osc-comment-entry {
+    min-width: 400px;
+}
+
 .osc-scroll-view-section {
     max-width: 850px;
 }
@@ -22,6 +26,5 @@
 }
 
 .osc-tweet-comment {
-    text-align: left;
     padding:0 20px;
 }

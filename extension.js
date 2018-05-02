@@ -101,8 +101,15 @@ const OscNew = new Lang.Class({
 
     _createContainer: function() {
         let hbox = new St.BoxLayout({style_class: 'panel-status-menu-box' });
-        let icon = new St.Icon({style_class: 'system-status-icon osc-background-symbolic'});
-        hbox.add_child(icon);
+        this.icon = new St.Icon({style_class: 'system-status-icon osc-background-symbolic'});
+        this.notice_label = new St.Label({
+            text: '0',
+            style_class: 'system-status-icon',
+            y_align: Clutter.ActorAlign.CENTER
+        });
+
+        hbox.add_child(this.icon);
+        hbox.add_child(this.notice_label);
 
         this.actor.add_actor(hbox);
         this.actor.add_style_class_name('panel-status-button');
@@ -187,7 +194,10 @@ const OscNew = new Lang.Class({
         let msg = arguments[0];
 
         for (var i in msg) {
-            //log("error:" + i + ":" + msg[i]);
+            log("error i:" + i + ":" + msg[i]);
+            for (var j in msg[i]) {
+                log("error j:" + j + ":" + msg[i][j]);
+            }
         }
     },
 
@@ -352,6 +362,44 @@ const OscNew = new Lang.Class({
         }
     },
 
+    _pharseResultNotice: function(result) {
+        let notice = 0;
+
+        for (var i in result) {
+            switch (i) {
+            case 'replyCount':
+                notice += parseInt(result[i]);
+                break;
+            case 'msgCount':
+                notice += parseInt(result[i]);
+                break;
+            case 'fansCount':
+                notice += parseInt(result[i]);
+                break;
+            case 'referCount':
+                notice += parseInt(result[i]);
+                break;
+            default:break;
+            }
+        };
+
+        if (notice != 0) {
+            this.notice_label.set_text(notice);
+            this.notice_label.show();
+        } else
+            this.notice_label.hide();
+    },
+
+    _pharseResultTweetList: function(result) {
+        for (var i in result) {
+            let item = new OscWidget.TweetItem(
+                result[i],
+                this.access_token,
+                this.api,
+                Lang.bind(this, this.replyTweet));
+            this.list.addMenuItem(item);
+        }
+    },
 
     getTweetItemDebug: function() {
         /* Debug for tweet */
@@ -365,14 +413,9 @@ const OscNew = new Lang.Class({
 
                 for (var i in msg) {
                     if (i == "tweetlist") {
-                        for (var j in msg[i]) {
-                            let item = new OscWidget.TweetItem(
-                                msg[i][j],
-                                this.access_token,
-                                this.api,
-                                Lang.bind(this, this.replyTweet));
-                            this.list.addMenuItem(item);
-                        }
+                        this._pharseResultTweetList(msg[i]);
+                    } else if (i == 'notice') {
+                        this._pharseResultNotice(msg[i]);
                     }
                 }
             }
