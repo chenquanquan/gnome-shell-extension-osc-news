@@ -4,6 +4,10 @@
     width:16px;
 }
 
+.osc-entry-section {
+    padding:0 12px;
+}
+
 .osc-scroll-view-section {
     max-width: 850px;
 }
@@ -15,4 +19,9 @@
     background-color: rgba(10,10,10,0.7);
     border-radius: 5px;
     padding: .5em;
+}
+
+.osc-tweet-comment {
+    text-align: left;
+    padding:0 20px;
 }

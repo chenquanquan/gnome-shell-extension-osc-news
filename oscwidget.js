@@ -5,6 +5,7 @@ const Lang = imports.lang;
 const PopupMenu = imports.ui.popupMenu;
 const Ellipsize = imports.gi.Pango.EllipsizeMode;
 const Gdk = imports.gi.Gdk;
+const Clutter = imports.gi.Clutter;
 
 const SimpleItem = new Lang.Class({
     Name: 'OscNew.SimpleItem',
@@ -77,7 +78,11 @@ const TweetItem = new Lang.Class({
                 return;
 
             this.commentList = '';
-            this.com_box =  new St.BoxLayout({vertical:true});
+            this.com_box =  new St.BoxLayout({
+                vertical:true,
+                x_align: Clutter.ActorAlign.START,
+                style_class: 'osc-tweet-comment'
+            });
             let msg_id = item.id+"";
             let author_id = item.authorid+"";
 
@@ -109,8 +114,9 @@ const TweetItem = new Lang.Class({
     _addComment: function(here, comment) {
         let commentItem = new St.Button({
             child: new St.Label({
-                text: comment.commentAuthor + ":" +
-                    comment.content})
+                text: comment.commentAuthor + ":" + comment.content,
+            }),
+            x_align: St.Align.START,
         });
         here.com_box.add(commentItem);
 
@@ -128,7 +134,7 @@ const TweetItem = new Lang.Class({
     _addCommentReplyEntry: function(msg_id, author_id) {
         this.com_entry = new St.Entry({
             name: 'tweetCommentEntry',
-            hint_text: _('reply...'),
+            //hint_text: _('reply...'),
             style_class:'run-dialog-entry',
             track_hover: true,
             can_focus: true

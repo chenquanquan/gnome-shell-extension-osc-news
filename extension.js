@@ -92,7 +92,7 @@ const OscNew = new Lang.Class({
     },
 
     _initTimer: function() {
-        this.timeout = Mainloop.timeout_add_seconds(60 * 5, Lang.bind(this, function() {
+        this.timeout = Mainloop.timeout_add_seconds(60 * 10, Lang.bind(this, function() {
             this.getTweetItemDebug();
             return true; // repeating
         }));
@@ -126,6 +126,7 @@ const OscNew = new Lang.Class({
         }));
 
         this.pubSect = new OscWidget.TweetPubSect();
+        this.pubSect.actor.add_style_class_name('osc-entry-section');
         this.menu.addMenuItem(this.pubSect);
         this.pubSect.entry.clutter_text.connect('key-press-event', Lang.bind(this, function(obj, event) {
             let symbol = event.get_key_symbol();
